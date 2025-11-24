@@ -8,7 +8,8 @@ import type {
   DeleteReadingsResponse 
 } from '@/types/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+// Remove trailing slash from base URL to avoid double slashes
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://temptracker-xff4.onrender.com').replace(/\/$/, '');
 
 /**
  * Enhanced fetch wrapper with error handling
