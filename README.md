@@ -1,111 +1,90 @@
-# Climate Monitor - Temperature & Humidity Tracking
+# Climate Monitor - Temperature & Humidity Dashboard
 
-A real-time temperature and humidity monitoring dashboard built with React, TypeScript, and Vite.
+A real-time environmental monitoring dashboard built with **React**, **TypeScript**, and **Vite**. This application visualizes temperature and humidity data, provides comfort assessments, and tracks historical trends.
 
-## Project info
+## 🚀 Technologies Used
 
-**URL**: https://lovable.dev/projects/7497f5a1-2cac-432c-b418-2e90a531a2c5
+-   **Frontend Framework**: React 18
+-   **Build Tool**: Vite
+-   **Language**: TypeScript
+-   **Styling**: Tailwind CSS, shadcn/ui
+-   **State Management / Data Fetching**: TanStack Query (React Query)
+-   **Charts**: Recharts
+-   **Icons**: Lucide React
+-   **HTTP Client**: Axios (or native fetch wrapper)
 
-## How can I edit this code?
+## 📂 Project Structure
 
-There are several ways of editing your application.
+The source code is located in the `src` directory. Here's a high-level overview:
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/7497f5a1-2cac-432c-b418-2e90a531a2c5) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/         # Reusable UI components
+│   ├── ui/            # shadcn/ui base components
+│   └── ...            # Feature-specific components (TrendChart, ComfortIndicator, etc.)
+├── hooks/             # Custom React hooks (useClimateData, etc.)
+├── pages/             # Route components (Index.tsx)
+├── services/          # API communication logic
+├── types/             # TypeScript type definitions
+└── lib/               # Utility functions
 ```
 
-**Edit a file directly in GitHub**
+## 🌡️ Temperature & Humidity Logic ("Temperature Files")
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This section details how the application handles environmental data, often referred to as the "temperature files" logic.
 
-**Use GitHub Codespaces**
+### 1. Data Types (`src/types/api.ts`)
+The application defines strict TypeScript interfaces for API responses:
+-   **`Reading`**: Represents a single data point with `temperature`, `humidity`, and `timestamp`.
+-   **`Analysis`**: A comprehensive object containing statistical stats (min, max, average) for both temperature and humidity, along with a `ComfortAssessment`.
+-   **`ComfortAssessment`**: Contains a calculated `score` (0-100), a descriptive `level` (e.g., "Good", "Poor"), and specific comments for temperature and humidity.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 2. Data Fetching (`src/services/api.ts`)
+All communication with the backend happens here. Key functions include:
+-   **`getReadings(hours)`**: Fetches raw data points for the specified time period.
+-   **`getAnalysis(hours)`**: Retrieves aggregated stats and comfort analysis.
+-   **`addReading(reading)`**: Posts new sensor data to the backend.
 
-## What technologies are used for this project?
+### 3. Visualization Components (`src/components/`)
+-   **`ComfortIndicator.tsx`**: Visualizes the `ComfortAssessment`. It uses a color-coded gauge (calculated based on the `score`) and displays the comfort level (e.g., "Excellent") along with specific feedback (e.g., "Temperature is slightly high").
+-   **`TrendChart.tsx`**: Uses `Recharts` to render a line graph of temperature and humidity over time. It processes the raw `Reading[]` data to format timestamps for the X-axis.
+-   **`HeroStats.tsx`**: Displays the most recent temperature and humidity readings prominently.
+-   **`AnomalyAlert.tsx`**: Shows warnings if the backend detects unusual data patterns (defined in the `Analysis` type).
 
-This project is built with:
+## 🔌 API Integration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-- TanStack Query (React Query)
-- Recharts
-- Axios
-
-## API Integration
-
-This application integrates with a Temperature & Humidity API running on `http://127.0.0.1:8000`.
-
-### Prerequisites
-
-1. Ensure the Temperature & Humidity API server is running
-2. The API should be accessible at `http://127.0.0.1:8000`
+The frontend expects a backend server running at `http://127.0.0.1:8000` (default).
 
 ### Environment Variables
-
-Create a `.env` file in the root directory (copy from `.env.example`):
-
+Create a `.env` file in the root directory to configure the API URL:
 ```bash
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-### API Endpoints Used
+### Key Endpoints
+-   `GET /`: Health check.
+-   `GET /readings?hours={n}`: Retrieve historical data.
+-   `GET /analysis?hours={n}`: Retrieve statistical analysis and comfort score.
+-   `POST /reading`: Submit a new reading.
 
-- **GET /** - Health check
-- **GET /readings?hours={hours}** - Get all readings within specified time period
-- **GET /analysis?hours={hours}** - Get comprehensive analysis with trends and comfort assessment
+## 🛠️ Setup & Development
 
-### Features
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-- **Real-time Monitoring**: Display current temperature and humidity readings
-- **Trend Analysis**: View historical data with interactive charts
-- **Comfort Assessment**: Get comfort level indicators based on optimal ranges
-- **Anomaly Detection**: Alerts for unusual temperature or humidity spikes
-- **Time Period Selection**: View data for 1h, 6h, 24h, or 7 days
-- **Auto-refresh**: Automatically updates every 60 seconds
-- **Error Handling**: Graceful error messages when API is unavailable
+2.  **Start Development Server**:
+    ```bash
+    npm run dev
+    ```
 
-## How can I deploy this project?
+3.  **Build for Production**:
+    ```bash
+    npm run build
+    ```
 
-Simply open [Lovable](https://lovable.dev/projects/7497f5a1-2cac-432c-b418-2e90a531a2c5) and click on Share -> Publish.
+## 📝 Editing
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is configured for use with **Lovable**, but can be edited with any standard IDE (VS Code, WebStorm, etc.).
+-   **VS Code**: Recommended extensions include ESLint, Prettier, and Tailwind CSS IntelliSense.
