@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, TrendingDown, ArrowUp, ArrowDown, RefreshCw } from "lucide-react";
 import { HeroStats } from "@/components/HeroStats";
 import { StatsCard } from "@/components/StatsCard";
@@ -7,45 +6,22 @@ import { ComfortIndicator } from "@/components/ComfortIndicator";
 import { TimeSelector } from "@/components/TimeSelector";
 import { TrendChart } from "@/components/TrendChart";
 import { AnomalyAlert } from "@/components/AnomalyAlert";
-import { AddReadingDialog } from "@/components/AddReadingDialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { getReadings, getAnalysis } from "@/services/api";
-import type { Reading, Analysis } from "@/types/api";
+import { useClimateData } from "@/hooks/useClimateData";
 
 const Index = () => {
   const [selectedHours, setSelectedHours] = useState(24);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const { 
-    data: readings, 
-    refetch: refetchReadings,
-    isLoading: readingsLoading,
-    isError: readingsError,
-    error: readingsErrorObj
-  } = useQuery<Reading[]>({
-    queryKey: ["readings", selectedHours],
-    queryFn: () => getReadings(selectedHours),
-    refetchInterval: autoRefresh ? 60000 : false,
-    retry: 2,
-  });
-
-  const { 
-    data: analysis, 
-    refetch: refetchAnalysis,
-    isLoading: analysisLoading,
-    isError: analysisError,
-    error: analysisErrorObj
-  } = useQuery<Analysis>({
-    queryKey: ["analysis", selectedHours],
-    queryFn: () => getAnalysis(selectedHours),
-    refetchInterval: autoRefresh ? 60000 : false,
-    retry: 2,
+  const { readings, analysis, isLoading, isError, error, refetch } = useClimateData({
+    hours: selectedHours,
+    autoRefresh,
   });
 
   const handleRefresh = async () => {
     try {
-      await Promise.all([refetchReadings(), refetchAnalysis()]);
+      await refetch();
       toast.success("Data refreshed successfully");
     } catch (error) {
       toast.error("Failed to refresh data");
@@ -53,8 +29,6 @@ const Index = () => {
   };
 
   const latestReading = readings?.[readings.length - 1];
-  const isLoading = readingsLoading || analysisLoading;
-  const hasError = readingsError || analysisError;
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,45 +52,27 @@ const Index = () => {
         {/* Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
           <TimeSelector selectedHours={selectedHours} onSelect={setSelectedHours} />
-          <div className="flex gap-2">
-            <AddReadingDialog onReadingAdded={handleRefresh} />
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              className="glass-card hover:bg-muted/50"
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Loading...' : 'Refresh'}
-            </Button>
-          </div>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            className="glass-card hover:bg-muted/50"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Loading...' : 'Refresh'}
+          </Button>
         </div>
 
         {/* Error State */}
-        {hasError && (
+        {isError && (
           <div className="glass-card rounded-3xl p-6 mb-8 border border-red-500/20 bg-red-500/5">
             <div className="flex items-center gap-3">
               <div className="text-red-500">⚠️</div>
               <div>
                 <h3 className="font-semibold text-red-500">Connection Error</h3>
                 <p className="text-sm text-muted-foreground">
-                  {(readingsErrorObj as Error)?.message || (analysisErrorObj as Error)?.message || 
+                  {(error as Error)?.message || 
                    'Unable to fetch data. Please ensure the API server is running at http://127.0.0.1:8000'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* No Data State */}
-        {!isLoading && !hasError && (!readings || readings.length === 0) && (
-          <div className="glass-card rounded-3xl p-6 mb-8 border border-yellow-500/20 bg-yellow-500/5">
-            <div className="flex items-center gap-3">
-              <div className="text-yellow-500">ℹ️</div>
-              <div>
-                <h3 className="font-semibold text-yellow-500">No Data Available</h3>
-                <p className="text-sm text-muted-foreground">
-                  No readings found for the selected time period. Try selecting a longer time period or add some readings to get started.
                 </p>
               </div>
             </div>

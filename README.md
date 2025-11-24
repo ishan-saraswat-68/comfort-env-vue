@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+# Climate Monitor - Temperature & Humidity Tracking
+
+A real-time temperature and humidity monitoring dashboard built with React, TypeScript, and Vite.
 
 ## Project info
 
@@ -59,6 +61,42 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- TanStack Query (React Query)
+- Recharts
+- Axios
+
+## API Integration
+
+This application integrates with a Temperature & Humidity API running on `http://127.0.0.1:8000`.
+
+### Prerequisites
+
+1. Ensure the Temperature & Humidity API server is running
+2. The API should be accessible at `http://127.0.0.1:8000`
+
+### Environment Variables
+
+Create a `.env` file in the root directory (copy from `.env.example`):
+
+```bash
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+
+### API Endpoints Used
+
+- **GET /** - Health check
+- **GET /readings?hours={hours}** - Get all readings within specified time period
+- **GET /analysis?hours={hours}** - Get comprehensive analysis with trends and comfort assessment
+
+### Features
+
+- **Real-time Monitoring**: Display current temperature and humidity readings
+- **Trend Analysis**: View historical data with interactive charts
+- **Comfort Assessment**: Get comfort level indicators based on optimal ranges
+- **Anomaly Detection**: Alerts for unusual temperature or humidity spikes
+- **Time Period Selection**: View data for 1h, 6h, 24h, or 7 days
+- **Auto-refresh**: Automatically updates every 60 seconds
+- **Error Handling**: Graceful error messages when API is unavailable
 
 ## How can I deploy this project?
 
